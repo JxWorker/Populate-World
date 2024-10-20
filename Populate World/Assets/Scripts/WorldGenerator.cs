@@ -6,6 +6,7 @@ using UnityEngine;
 public class WorldGenerator : MonoBehaviour
 {
     public bool autoUpdate;
+    public float[,] generatedGrid;
     // public float scale;
 
     [Header("World Size")]
@@ -67,9 +68,11 @@ public class WorldGenerator : MonoBehaviour
         // PrintGrid(grid);
 
         NoiseDisplay display = FindAnyObjectByType<NoiseDisplay>();
-        // display.DrawNoiseMap(grid);
-        display.DrawTiles(grid);
-        display.DrawValues(grid, autoUpdate);
+        //display.DrawNoiseMap(grid);
+        //display.DrawTiles_4(grid);
+        //display.DrawValues(grid, autoUpdate);
+
+        generatedGrid = grid;
     }
 
     public void PrintGrid(float[,] gird){
