@@ -70,3 +70,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /Populate\ World/[Aa]ssets/[Ss]treamingAssets/aa.meta
 /Populate\ World/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Debug Files
+/Populate\ World/[Aa]ssets/Test_Version/DebugFiles/
