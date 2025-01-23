@@ -25,13 +25,13 @@ public class FloraGenerator : MonoBehaviour
     public int seed_Forest = 0;
 
     public float[,] FloraGrid;
-    public void GenerateFlora(float[,] world)
+    public void GenerateFlora(float[,] world, float[,] village)
     {
-        var forestValues = GenerateForestNoise(world);
-        FloraGrid = GenerateRandomFlora(world, forestValues);
+        var forestValues = GenerateForestNoise(world, village);
+        FloraGrid = GenerateRandomFlora(world, village, forestValues);
     }
 
-    private float[,] GenerateForestNoise(float[,] world)
+    private float[,] GenerateForestNoise(float[,] world, float[,] village)
     {
         var width = world.GetLength(0);
         var height = world.GetLength(1);
@@ -75,6 +75,12 @@ public class FloraGenerator : MonoBehaviour
                 }
 
                 if (world[x, y] > 0.4f)
+                {
+                    tempGrid[x, y] = 0f;
+                    continue;
+                }
+
+                if (village[x, y] > 0f)
                 {
                     tempGrid[x, y] = 0f;
                     continue;
@@ -317,7 +323,7 @@ public class FloraGenerator : MonoBehaviour
         return ("0", 0);
     }
 
-    private float[,] GenerateRandomFlora(float[,] world, float[,] forest)
+    private float[,] GenerateRandomFlora(float[,] world, float[,] village, float[,] forest)
     {
         var width = world.GetLength(0);
         var height = world.GetLength(1);
@@ -328,7 +334,7 @@ public class FloraGenerator : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (world[i, j] == -1f)
+                if (world[i, j] == -1f  || village[i,j] > 0f)
                 {
                     tempGrid[i, j] = 0f;
                 }

@@ -6,12 +6,12 @@ public class ChunkLoader : MonoBehaviour
     public int chunkIteration = 0;
     private int gridMiddleChunk;
     private readonly int chunkIterationIncrease = 4;
-    private readonly int[] xDirection = { 1, -1, -1,  1};
-    private readonly int[] yDirection = {-1, -1,  1,  1};
+    private readonly int[] xDirection = { 1, -1, -1, 1 };
+    private readonly int[] yDirection = { -1, -1, 1, 1 };
 
     private RenderWorld renderWorld;
 
-    public void SplitGridInChunks(float[,] worldGrid, float[,] floraGrid, int chunkMultiplier, int chunkSize)
+    public void SplitGridInChunks(float[,] worldGrid, float[,] villageGrid, float[,] floraGrid, int chunkMultiplier, int chunkSize)
     {
         renderWorld = FindAnyObjectByType<RenderWorld>();
         chunkGrid = new Chunk[chunkMultiplier, chunkMultiplier];
@@ -35,6 +35,7 @@ public class ChunkLoader : MonoBehaviour
                         }
 
                         chunkGrid[xCM, yCM].terrainTileValues[xCS, yCS] = worldGrid[x, y];
+                        chunkGrid[xCM, yCM].villageTileValues[xCS, yCS] = villageGrid[x, y];
                         chunkGrid[xCM, yCM].floraTileValues[xCS, yCS] = floraGrid[x, y];
                     }
                 }
@@ -42,21 +43,20 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    public void LoadChunk(int chunkMultiplier){
-        // Debug.Log("Entered Load Chunk Method");
-        // RenderWorld renderWorld = FindAnyObjectByType<RenderWorld>();        
-
-        gridMiddleChunk = (chunkMultiplier-1) / 2;
+    public void LoadChunk(int chunkMultiplier)
+    {
+        gridMiddleChunk = (chunkMultiplier - 1) / 2;
 
         if (chunkIteration == 0)
         {
             renderWorld.RenderTerrain(chunkGrid[gridMiddleChunk, gridMiddleChunk]);
+            renderWorld.RenderVillage(chunkGrid[gridMiddleChunk, gridMiddleChunk]);
             renderWorld.RenderFlora(chunkGrid[gridMiddleChunk, gridMiddleChunk]);
-            Debug.Log("X: "+gridMiddleChunk+", Y: "+gridMiddleChunk);
+            Debug.Log("X: " + gridMiddleChunk + ", Y: " + gridMiddleChunk);
         }
 
         var x = gridMiddleChunk;
-        var y = gridMiddleChunk + chunkIteration/chunkIterationIncrease;
+        var y = gridMiddleChunk + chunkIteration / chunkIterationIncrease;
         var directionPosition = 0;
         var directionCount = 0;
         var countOfDirectionPosition = chunkIteration / chunkIterationIncrease;
@@ -79,8 +79,8 @@ public class ChunkLoader : MonoBehaviour
             }
 
             renderWorld.RenderTerrain(chunkGrid[x, y]);
+            renderWorld.RenderVillage(chunkGrid[x, y]);
             renderWorld.RenderFlora(chunkGrid[x, y]);
-            // Debug.Log("X: "+x+", Y: "+y);
         }
 
         chunkIteration += chunkIterationIncrease;

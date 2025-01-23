@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -35,11 +34,12 @@ public class VillageGenerator_T : MonoBehaviour
 
         int[,] directions = { { +1, +1 }, { +1, -1 }, { -1, +1 }, { -1, -1 } };
 
-        int xCenter = Random.Range(0, WorldSize + 1);
-        int yCenter = Random.Range(0, WorldSize + 1);
         int villageRadius = Random.Range(5, 21);
+        int xCenter = Random.Range(villageRadius + 1, WorldSize - villageRadius);
+        int yCenter = Random.Range(villageRadius + 1, WorldSize - villageRadius);
         // int numberOfHouses = Random.Range(villageRadius / 3 * 2, villageRadius + 1);
-        int numberOfHouses = Random.Range(villageRadius, villageRadius * 2 / 3);
+        // int numberOfHouses = Random.Range(villageRadius, villageRadius * 2 / 3);
+        int numberOfHouses = Random.Range(villageRadius * 2 / 3, villageRadius - 1);
 
         // ShowSquare(xCenter, yCenter, villageRadius);
 
@@ -88,15 +88,20 @@ public class VillageGenerator_T : MonoBehaviour
                 continue;
             }
 
-            if (HasStructureInColumn(yCenter, count))
-            {
+            if (HasDirectNeighbour(xWorld, yWorld, count))
+            {   
                 continue;
             }
 
-            if (HasStructureToRightOrLeft(xWorld, count))
-            {
-                continue;
-            }
+            // if (HasStructureInColumn(yCenter, count))
+            // {
+            //     continue;
+            // }
+
+            // if (HasStructureToRightOrLeft(xWorld, count))
+            // {
+            //     continue;
+            // }
 
             currentVillage.listOfStructures[count] = new Structure_T(xWorld, yWorld, 2f);
             villageGrid[xWorld, yWorld] = 2f;
@@ -137,97 +142,115 @@ public class VillageGenerator_T : MonoBehaviour
         print(currentVillage.ToString());
     }
 
-    private bool HasStructureInColumn(int yCenter, int currentStructureCount)
-    {
-        // var loopStart = 0;
-        // var loopEnd = 0;
+    // private bool HasStructureInColumn(int yCenter, int currentStructureCount)
+    // {
+    //     // var loopStart = 0;
+    //     // var loopEnd = 0;
 
+    //     if (currentVillage.listOfStructures.Length == 0)
+    //     {
+    //         return false;
+    //     }
+
+    //     // if (yWorld > yCenter)
+    //     // {
+    //     // loopStart = yCenter;
+    //     // loopEnd = yWorld;
+
+    //     // for (int i = yCenter; i < yWorld; i++)
+    //     // {
+    //     //     for (int j = 0; j < currentStructureCount; j++)
+    //     //     {
+    //     //         if (currentVillage.listOfStructures[j].tileValue == 2f)
+    //     //         {
+    //     //             return true;
+    //     //         }
+    //     //     }
+    //     // }
+
+    //     for (int i = 0; i < currentStructureCount; i++)
+    //     {
+    //         // Debug.Log("yCoordinate: " + currentVillage.listOfStructures[i].yCoordinate);
+    //         // Debug.Log("yCenter: " + yCenter);
+    //         // Debug.Log("yWorld: " + radius);
+    //         // Debug.Log("+Y: " + (currentVillage.listOfStructures[i].yCoordinate > yCenter && currentVillage.listOfStructures[i].yCoordinate < radius));
+    //         // Debug.Log("-Y: " + (currentVillage.listOfStructures[i].yCoordinate < yCenter && currentVillage.listOfStructures[i].yCoordinate > radius));
+    //         // Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+    //         // var temp1 = yCenter + radius;
+    //         // var temp2 = yCenter - radius;
+
+    //         // if (currentVillage.listOfStructures[i].yCoordinate > yCenter && currentVillage.listOfStructures[i].yCoordinate < positivBound || currentVillage.listOfStructures[i].yCoordinate < yCenter && currentVillage.listOfStructures[i].yCoordinate > negativeBound)
+    //         // {
+    //         //     return true;
+    //         // }
+
+    //         if (currentVillage.listOfStructures[i].yCoordinate > yCenter || currentVillage.listOfStructures[i].yCoordinate < yCenter)
+    //         {
+    //             return true;
+    //         }
+    //     }
+    //     // }
+
+    //     // if (yWorld < yCenter)
+    //     // {
+    //     // loopStart = yWorld;
+    //     // loopEnd = yCenter;
+
+    //     //     for (int i = yWorld; i < yCenter; i++)
+    //     //     {
+    //     //         for (int j = 0; j < currentStructureCount; j++)
+    //     //         {
+    //     //             if (currentVillage.listOfStructures[j].tileValue == 2f)
+    //     //             {
+    //     //                 return true;
+    //     //             }
+    //     //         }
+    //     //     }
+    //     // }
+
+    //     // for (int i = loopStart; i < loopEnd; i++)
+    //     // {
+    //     //     for (int j = 0; j < currentStructureCount; j++)
+    //     //     {
+    //     //         if (currentVillage.listOfStructures[j].tileValue == 2f)
+    //     //         {
+    //     //             return true;
+    //     //         }
+    //     //     }
+    //     // }
+
+    //     return false;
+    // }
+
+    // private bool HasStructureToRightOrLeft(int xWorld, int currentStructureCount)
+    // {
+    //     if (currentVillage.listOfStructures.Length == 0)
+    //     {
+    //         return false;
+    //     }
+
+    //     for (int i = 0; i < currentStructureCount; i++)
+    //     {
+    //         if (currentVillage.listOfStructures[i].xCoordinate == xWorld - 1 || currentVillage.listOfStructures[i].xCoordinate == xWorld + 1)
+    //         {
+    //             return true;
+    //         }
+    //     }
+
+    //     return false;
+    // }
+
+    private bool HasDirectNeighbour(int xWorld, int yWorld, int currentStructureCount)
+    {
         if (currentVillage.listOfStructures.Length == 0)
         {
             return false;
         }
 
-        // if (yWorld > yCenter)
-        // {
-        // loopStart = yCenter;
-        // loopEnd = yWorld;
-
-        // for (int i = yCenter; i < yWorld; i++)
-        // {
-        //     for (int j = 0; j < currentStructureCount; j++)
-        //     {
-        //         if (currentVillage.listOfStructures[j].tileValue == 2f)
-        //         {
-        //             return true;
-        //         }
-        //     }
-        // }
-
         for (int i = 0; i < currentStructureCount; i++)
         {
-            // Debug.Log("yCoordinate: " + currentVillage.listOfStructures[i].yCoordinate);
-            // Debug.Log("yCenter: " + yCenter);
-            // Debug.Log("yWorld: " + radius);
-            // Debug.Log("+Y: " + (currentVillage.listOfStructures[i].yCoordinate > yCenter && currentVillage.listOfStructures[i].yCoordinate < radius));
-            // Debug.Log("-Y: " + (currentVillage.listOfStructures[i].yCoordinate < yCenter && currentVillage.listOfStructures[i].yCoordinate > radius));
-            // Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-
-            // var temp1 = yCenter + radius;
-            // var temp2 = yCenter - radius;
-
-            // if (currentVillage.listOfStructures[i].yCoordinate > yCenter && currentVillage.listOfStructures[i].yCoordinate < positivBound || currentVillage.listOfStructures[i].yCoordinate < yCenter && currentVillage.listOfStructures[i].yCoordinate > negativeBound)
-            // {
-            //     return true;
-            // }
-
-            if (currentVillage.listOfStructures[i].yCoordinate > yCenter || currentVillage.listOfStructures[i].yCoordinate < yCenter)
-            {
-                return true;
-            }
-        }
-        // }
-
-        // if (yWorld < yCenter)
-        // {
-        // loopStart = yWorld;
-        // loopEnd = yCenter;
-
-        //     for (int i = yWorld; i < yCenter; i++)
-        //     {
-        //         for (int j = 0; j < currentStructureCount; j++)
-        //         {
-        //             if (currentVillage.listOfStructures[j].tileValue == 2f)
-        //             {
-        //                 return true;
-        //             }
-        //         }
-        //     }
-        // }
-
-        // for (int i = loopStart; i < loopEnd; i++)
-        // {
-        //     for (int j = 0; j < currentStructureCount; j++)
-        //     {
-        //         if (currentVillage.listOfStructures[j].tileValue == 2f)
-        //         {
-        //             return true;
-        //         }
-        //     }
-        // }
-
-        return false;
-    }
-
-    private bool HasStructureToRightOrLeft(int xWorld, int currentStructureCount)
-    {
-        if (currentVillage.listOfStructures.Length == 0)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < currentStructureCount; i++)
-        {
-            if (currentVillage.listOfStructures[i].xCoordinate == xWorld - 1 || currentVillage.listOfStructures[i].xCoordinate == xWorld + 1)
+            if (currentVillage.listOfStructures[i].xCoordinate == xWorld - 1 || currentVillage.listOfStructures[i].xCoordinate == xWorld + 1 || currentVillage.listOfStructures[i].yCoordinate == yWorld - 1 || currentVillage.listOfStructures[i].yCoordinate == yWorld + 1)
             {
                 return true;
             }
@@ -496,28 +519,28 @@ public class VillageGenerator_T : MonoBehaviour
     {
         Point_T cheapest = listOfPoints.First();
 
-        foreach (var point in listOfPoints)
-        {
-            if (cheapest.cost == point.cost)
-            {
-                if (Mathf.Abs(xDirectionDifference) > Mathf.Abs(yDirectionDifference))
-                {
-                    // && (point.PointInList(currentVillage.listOfPaths.Find(item => item.name.Equals("Left")).path) || point.PointInList(currentVillage.listOfPaths.Find(item => item.name.Equals("Right")).path))
-                    cheapest = point;
-                }
+        // foreach (var point in listOfPoints)
+        // {
+        //     // if (cheapest.cost == point.cost)
+        //     // {
+        //     //     if (Mathf.Abs(xDirectionDifference) > Mathf.Abs(yDirectionDifference))
+        //     //     {
+        //     //         // && (point.PointInList(currentVillage.listOfPaths.Find(item => item.name.Equals("Left")).path) || point.PointInList(currentVillage.listOfPaths.Find(item => item.name.Equals("Right")).path))
+        //     //         cheapest = point;
+        //     //     }
 
-                if (Mathf.Abs(xDirectionDifference) < Mathf.Abs(yDirectionDifference))
-                {
-                    // && (point.PointInList(currentVillage.listOfPaths.Find(item => item.name.Equals("Down")).path) || point.PointInList(currentVillage.listOfPaths.Find(item => item.name.Equals("Up")).path))
-                    cheapest = point;
-                }
-            }
+        //     //     if (Mathf.Abs(xDirectionDifference) < Mathf.Abs(yDirectionDifference))
+        //     //     {
+        //     //         // && (point.PointInList(currentVillage.listOfPaths.Find(item => item.name.Equals("Down")).path) || point.PointInList(currentVillage.listOfPaths.Find(item => item.name.Equals("Up")).path))
+        //     //         cheapest = point;
+        //     //     }
+        //     // }
 
-            if (cheapest.cost > point.cost)
-            {
-                cheapest = point;
-            }
-        }
+        //     if (cheapest.cost > point.cost)
+        //     {
+        //         cheapest = point;
+        //     }
+        // }
 
         return cheapest;
     }
@@ -532,10 +555,10 @@ public class VillageGenerator_T : MonoBehaviour
         var right = point.Offset(1, 0);
         var left = point.Offset(-1, 0);
 
-        up.CalculateCost(xPositionBound, xNegativeBound, yPositionBound, yNegativeBound, villageGrid);
-        down.CalculateCost(xPositionBound, xNegativeBound, yPositionBound, yNegativeBound, villageGrid);
-        right.CalculateCost(xPositionBound, xNegativeBound, yPositionBound, yNegativeBound, villageGrid);
-        left.CalculateCost(xPositionBound, xNegativeBound, yPositionBound, yNegativeBound, villageGrid);
+        up.CalculateCost(xPositionBound, xNegativeBound, yPositionBound, yNegativeBound, xDirectionDifference, yDirectionDifference, "Up", villageGrid);
+        down.CalculateCost(xPositionBound, xNegativeBound, yPositionBound, yNegativeBound, xDirectionDifference, yDirectionDifference, "Down", villageGrid);
+        right.CalculateCost(xPositionBound, xNegativeBound, yPositionBound, yNegativeBound, xDirectionDifference, yDirectionDifference, "Right", villageGrid);
+        left.CalculateCost(xPositionBound, xNegativeBound, yPositionBound, yNegativeBound, xDirectionDifference, yDirectionDifference, "Left", villageGrid);
 
         // Debug.Log("Given Point: " + point.ToString());
         // Debug.Log("x Difference: " + xDirectionDifference);
@@ -546,36 +569,59 @@ public class VillageGenerator_T : MonoBehaviour
         // Debug.Log("Right: " + right.ToString());
         // Debug.Log("Left: " + left.ToString());
 
+        // var neighbourPoints = new List<Point_T>{up, down, right, left};
+
         var neighbourPoints = new List<Point_T>();
-        var neighbourDirections = new List<string>();
+        // var neighbourDirections = new List<string>();
 
         if (xDirectionDifference < 0 && right.cost >= 0)
         {
             // Debug.Log("Add Right Neighbour");
             neighbourPoints.Add(right);
-            neighbourDirections.Add("Right");
         }
 
         if (xDirectionDifference > 0 && left.cost >= 0)
         {
             // Debug.Log("Add Left Neighbour");
             neighbourPoints.Add(left);
-            neighbourDirections.Add("Left");
         }
 
         if (yDirectionDifference < 0 && up.cost >= 0)
         {
             // Debug.Log("Add Up Neighbour");
             neighbourPoints.Add(up);
-            neighbourDirections.Add("Up");
         }
 
-        if (yDirectionDifference > 0 && down.cost >= 0)
+        // if (yDirectionDifference > 0 && down.cost >= 0)
+        // {
+        //     // Debug.Log("Add Down Neighbour");
+        //     neighbourPoints.Add(down);
+        // }
+
+        // if (right.cost >= 0)
+        // {
+        //     neighbourPoints.Add(right);
+        // }
+
+        // if (left.cost >= 0)
+        // {
+        //     neighbourPoints.Add(left);
+        // }
+
+        // if (up.cost >= 0)
+        // {
+        //     neighbourPoints.Add(up);
+        // }
+
+        if (down.cost >= 0)
         {
-            // Debug.Log("Add Down Neighbour");
             neighbourPoints.Add(down);
-            neighbourDirections.Add("Down");
         }
+
+        // neighbourPoints.Add(up);
+        // neighbourPoints.Add(down);
+        // neighbourPoints.Add(right);
+        // neighbourPoints.Add(left);
 
         // switch (xDirectionDifference)
         // {

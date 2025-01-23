@@ -16,6 +16,10 @@ public class RenderWorld : MonoBehaviour
     public Tilemap Terrain_Layer_4;
     [TabGroup("Variables", "Tilemaps")]
     public Tilemap Flora_Layer;
+    [TabGroup("Variables", "Tilemaps")]
+    public Tilemap Path_Layer;
+    [TabGroup("Variables", "Tilemaps")]
+    public Tilemap Village_Layer;
 
 
     [TabGroup("Variables", "RuleTiles")]
@@ -32,6 +36,8 @@ public class RenderWorld : MonoBehaviour
     public RuleTile SnowBrownStone;
     [TabGroup("Variables", "RuleTiles")]
     public RuleTile SnowGrayStone;
+    [TabGroup("Variables", "RuleTiles")]
+    public RuleTile Path;
     private RuleTile Stone;
     private RuleTile Snow;
 
@@ -45,6 +51,10 @@ public class RenderWorld : MonoBehaviour
     [TabGroup("Variables", "Tiles")]
     public Tile[] Stones = new Tile[2];
     [TabGroup("Variables", "Tiles")]
+    public Tile[] VillageHouses = new Tile[2];
+    [TabGroup("Variables", "Tiles")]
+    public Tile[] VillageCenter = new Tile[5];
+    [TabGroup("Variables", "Tiles")]
     public Tile Snowman;
 
 
@@ -52,11 +62,16 @@ public class RenderWorld : MonoBehaviour
     public int chunkSize = 16;
     [TabGroup("Variables", "World Size")]
     public int chunkMultiplier = 101;
-    [TabGroup("Variables", "World Size")]
-    public int worldSize;
+    [TabGroup("Variables", "World Size"), ShowInInspector]
+    public int WorldSize
+    {
+        get {return worldSize; }
+    }
+    private int worldSize;
 
 
     private WorldGenerator worldGenerator;
+    private VillageGenerator villageGenerator;
     private FloraGenerator floraGenerator;
     private ChunkLoader chunkLoader;
 
@@ -81,11 +96,14 @@ public class RenderWorld : MonoBehaviour
         worldGenerator = FindAnyObjectByType<WorldGenerator>();
         worldGenerator.GenerateWorldNosie(worldSize);
 
+        villageGenerator = FindAnyObjectByType<VillageGenerator>();
+        villageGenerator.GenerateVillages(worldGenerator.WorldGrid, worldSize);
+
         floraGenerator = FindAnyObjectByType<FloraGenerator>();
-        floraGenerator.GenerateFlora(worldGenerator.WorldGrid);
+        floraGenerator.GenerateFlora(worldGenerator.WorldGrid, villageGenerator.villageGrid);
 
         chunkLoader = FindAnyObjectByType<ChunkLoader>();
-        chunkLoader.SplitGridInChunks(worldGenerator.WorldGrid, floraGenerator.FloraGrid, chunkMultiplier, chunkSize);
+        chunkLoader.SplitGridInChunks(worldGenerator.WorldGrid, villageGenerator.villageGrid, floraGenerator.FloraGrid, chunkMultiplier, chunkSize);
         chunkLoader.LoadChunk(chunkMultiplier);
     }
 
@@ -93,7 +111,6 @@ public class RenderWorld : MonoBehaviour
     [Button("Render Chuncks")]
     public void RenderChunks()
     {
-        // Debug.Log("Render Chunk Pressed");
         chunkLoader.LoadChunk(chunkMultiplier);
     }
 
@@ -127,6 +144,63 @@ public class RenderWorld : MonoBehaviour
 				else if (grid[x, y] > 0.5f)
 				{
 					Terrain_Layer_4.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Snow);
+				}
+			}
+		}
+    }
+
+    public void RenderVillage(Chunk chunk)
+    {
+        var grid = chunk.villageTileValues;
+
+        for (int x = 0; x < grid.GetLength(0); x++)
+		{
+			for (int y = 0; y < grid.GetLength(1); y++)
+			{
+                var xCoordinate = x + chunk.XCoordinate * chunkSize;
+                var yCoordinate = y + chunk.YCoordinate * chunkSize;
+
+				if (grid[x, y] == 1.1f)
+				{
+					Village_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), VillageCenter[0]);
+
+                    Path_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Path);
+				}
+                else if (grid[x, y] == 1.2f)
+				{
+					Village_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), VillageCenter[1]);
+
+                    Path_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Path);
+				}
+                else if (grid[x, y] == 1.3f)
+				{
+					Village_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), VillageCenter[2]);
+
+                    Path_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Path);
+				}
+                else if (grid[x, y] == 1.4f)
+				{
+					Village_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), VillageCenter[3]);
+
+                    Path_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Path);
+				}
+                else if (grid[x, y] == 1.5f)
+				{
+					Village_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), VillageCenter[4]);
+
+                    Path_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Path);
+				}
+				else if (grid[x, y] == 2.1f)
+				{
+					Village_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), VillageHouses[0]);
+				}
+                else if (grid[x, y] == 2.2f)
+				{
+					Village_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), VillageHouses[1]);
+				}
+				else if (grid[x, y] == 3f)
+				{
+					Path_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Path);
 				}
 			}
 		}
@@ -222,6 +296,8 @@ public class RenderWorld : MonoBehaviour
         Terrain_Layer_3.ClearAllTiles();
         Terrain_Layer_4.ClearAllTiles();
         Flora_Layer.ClearAllTiles();
+        Path_Layer.ClearAllTiles();
+        Village_Layer.ClearAllTiles();
 
         chunkLoader.chunkIteration = 0;
     }
