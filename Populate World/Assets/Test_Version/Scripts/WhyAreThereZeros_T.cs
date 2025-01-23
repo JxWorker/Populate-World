@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 
 public class WhyAreThereZeros_T : MonoBehaviour
 {
+    #region Attributes
     [TabGroup("Tile")]
 	public Tilemap Grid_Map01_02;
     [TabGroup("Tile")]
@@ -58,7 +59,7 @@ public class WhyAreThereZeros_T : MonoBehaviour
     public float[,] generatedGrid_For_ChunkSpliter;
     [TabGroup("Chunk Loader")]
     public int gridMiddleChunk;
-
+    #endregion
 
     public int RandomSeed()
     {
