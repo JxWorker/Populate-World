@@ -73,3 +73,6 @@ crashlytics-build.properties
 
 # Debug Files
 /Populate\ World/[Aa]ssets/Test_Version/DebugFiles/
+
+# Crashreport Files Linux
+mono_crash.mem.*.blob
