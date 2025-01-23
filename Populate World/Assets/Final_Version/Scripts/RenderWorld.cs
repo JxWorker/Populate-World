@@ -58,8 +58,11 @@ public class RenderWorld : MonoBehaviour
     public Tile Snowman;
 
 
-    [TabGroup("Variables", "World Size")]
-    public int chunkSize = 16;
+    [TabGroup("Variables", "World Size"), ShowInInspector]
+    public int ChunkSize
+    {
+        get {return chunkSize; }
+    }
     [TabGroup("Variables", "World Size")]
     public int chunkMultiplier = 101;
     [TabGroup("Variables", "World Size"), ShowInInspector]
@@ -67,6 +70,8 @@ public class RenderWorld : MonoBehaviour
     {
         get {return worldSize; }
     }
+
+    private int chunkSize = 16;
     private int worldSize;
 
 
@@ -298,7 +303,5 @@ public class RenderWorld : MonoBehaviour
         Flora_Layer.ClearAllTiles();
         Path_Layer.ClearAllTiles();
         Village_Layer.ClearAllTiles();
-
-        chunkLoader.chunkIteration = 0;
     }
 }

@@ -13,6 +13,8 @@ public class ChunkLoader : MonoBehaviour
 
     public void SplitGridInChunks(float[,] worldGrid, float[,] villageGrid, float[,] floraGrid, int chunkMultiplier, int chunkSize)
     {
+        chunkIteration = 0;
+
         renderWorld = FindAnyObjectByType<RenderWorld>();
         chunkGrid = new Chunk[chunkMultiplier, chunkMultiplier];
 
