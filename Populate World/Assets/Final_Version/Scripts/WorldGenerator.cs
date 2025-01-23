@@ -31,22 +31,16 @@ public class WorldGenerator : MonoBehaviour
     public int seed_Water = 0;
 
 
-    [TabGroup("World Size")]
-    public int width = 500;
-    [TabGroup("World Size")]
-    public int height = 500;
-
-
     public float[,] WorldGrid;
     private float[,] TerrainGrid;
     private float[,] WaterGird;
 
-    public void GenerateWorldNosie()
+    public void GenerateWorldNosie(int worldSize)
     {
-        GenerateTerrainNoise();
-        GenerateWaterNoise();
+        GenerateTerrainNoise(worldSize);
+        GenerateWaterNoise(worldSize);
 
-        var grid = new float[width, height];
+        var grid = new float[worldSize, worldSize];
 
         for (int i = 0; i < WaterGird.GetLength(0); i++)
         {
@@ -66,14 +60,14 @@ public class WorldGenerator : MonoBehaviour
         WorldGrid = grid;
     }
 
-    private void GenerateTerrainNoise()
+    private void GenerateTerrainNoise(int worldSize)
     {
         seed_Terrain = RandomSeed();
-        var grid = new float[width, height];
+        var grid = new float[worldSize, worldSize];
 
-        for (int i = 0; i < width; i++)
+        for (int i = 0; i < worldSize; i++)
         {
-            for (int j = 0; j < height; j++)
+            for (int j = 0; j < worldSize; j++)
             {
                 var elevation = 0f;
                 var Frequency = frequency_Terrain;
@@ -97,14 +91,14 @@ public class WorldGenerator : MonoBehaviour
         TerrainGrid = grid;
     }
 
-    private void GenerateWaterNoise()
+    private void GenerateWaterNoise(int worldSize)
     {
         seed_Water = RandomSeed();
-        var grid = new float[width, height];
+        var grid = new float[worldSize, worldSize];
 
-        for (int i = 0; i < width; i++)
+        for (int i = 0; i < worldSize; i++)
         {
-            for (int j = 0; j < height; j++)
+            for (int j = 0; j < worldSize; j++)
             {
                 var elevation = 0f;
                 var Frequency = frequency_Water;

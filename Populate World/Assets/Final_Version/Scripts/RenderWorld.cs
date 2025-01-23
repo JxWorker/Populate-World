@@ -48,11 +48,25 @@ public class RenderWorld : MonoBehaviour
     public Tile Snowman;
 
 
+    [TabGroup("Variables", "World Size")]
+    public int chunkSize = 16;
+    [TabGroup("Variables", "World Size")]
+    public int chunkMultiplier = 101;
+    [TabGroup("Variables", "World Size")]
+    public int worldSize;
+
+
+    private WorldGenerator worldGenerator;
+    private FloraGenerator floraGenerator;
+    private ChunkLoader chunkLoader;
+
 
     [TabGroup("Buttons")]
     [Button("Render World")]
     public void RenderTheWorld()
     {
+        worldSize = chunkSize * chunkMultiplier;
+
         if (isBrownStone)
         {
             Stone = BrownStone;
@@ -64,115 +78,135 @@ public class RenderWorld : MonoBehaviour
             Snow = SnowGrayStone;
         }
 
-        WorldGenerator worldGenerator = FindAnyObjectByType<WorldGenerator>();
-        worldGenerator.GenerateWorldNosie();
-        RenderTerrain(worldGenerator.WorldGrid);
+        worldGenerator = FindAnyObjectByType<WorldGenerator>();
+        worldGenerator.GenerateWorldNosie(worldSize);
 
-        FloraGenerator floraGenerator = FindAnyObjectByType<FloraGenerator>();
+        floraGenerator = FindAnyObjectByType<FloraGenerator>();
         floraGenerator.GenerateFlora(worldGenerator.WorldGrid);
-        RenderFlora(floraGenerator.FloraGrid);
+
+        chunkLoader = FindAnyObjectByType<ChunkLoader>();
+        chunkLoader.SplitGridInChunks(worldGenerator.WorldGrid, floraGenerator.FloraGrid, chunkMultiplier, chunkSize);
+        chunkLoader.LoadChunk(chunkMultiplier);
     }
 
-    private void RenderTerrain(float[,] grid)
+    [TabGroup("Buttons")]
+    [Button("Render Chuncks")]
+    public void RenderChunks()
     {
-        for (int i = 0; i < grid.GetLength(0); i++)
+        // Debug.Log("Render Chunk Pressed");
+        chunkLoader.LoadChunk(chunkMultiplier);
+    }
+
+    public void RenderTerrain(Chunk chunk)
+    {
+        var grid = chunk.terrainTileValues;
+
+        for (int x = 0; x < grid.GetLength(0); x++)
 		{
-			for (int j = 0; j < grid.GetLength(1); j++)
+			for (int y = 0; y < grid.GetLength(1); y++)
 			{
-				if (grid[i, j] == -1f)
+                var xCoordinate = x + chunk.XCoordinate * chunkSize;
+                var yCoordinate = y + chunk.YCoordinate * chunkSize;
+
+				if (grid[x, y] == -1f)
 				{
-					Water_Layer.SetTile(new Vector3Int(i, j, 0), Water);
+					Water_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Water);
 				}
-				else if (grid[i, j] >= 0f && grid[i, j] <= 0.3f)
+				else if (grid[x, y] >= 0f && grid[x, y] <= 0.3f)
 				{
-					Terrain_Layer_1.SetTile(new Vector3Int(i, j, 0), Grass);
+					Terrain_Layer_1.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Grass);
 				}
-				else if (grid[i, j] > 0.3f && grid[i, j] <= 0.4f)
+				else if (grid[x, y] > 0.3f && grid[x, y] <= 0.4f)
 				{
-					Terrain_Layer_2.SetTile(new Vector3Int(i, j, 0), Grass);
+					Terrain_Layer_2.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Grass);
 				}
-				else if (grid[i, j] > 0.4f && grid[i, j] <= 0.5f)
+				else if (grid[x, y] > 0.4f && grid[x, y] <= 0.5f)
 				{
-					Terrain_Layer_3.SetTile(new Vector3Int(i, j, 0), Stone);
+					Terrain_Layer_3.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Stone);
 				}
-				else if (grid[i, j] > 0.5f)
+				else if (grid[x, y] > 0.5f)
 				{
-					Terrain_Layer_4.SetTile(new Vector3Int(i, j, 0), Snow);
+					Terrain_Layer_4.SetTile(new Vector3Int(xCoordinate, yCoordinate, 0), Snow);
 				}
 			}
 		}
     }
 
-    private void RenderFlora(float[,] grid)
+    public void RenderFlora(Chunk chunk)
     {
+        var grid = chunk.floraTileValues;
+
         for (int x = 0; x < grid.GetLength(0); x++)
         {
             for (int y = 0; y < grid.GetLength(1); y++)
             {
+                var xCoordinate = x + chunk.XCoordinate * chunkSize;
+                var yCoordinate = y + chunk.YCoordinate * chunkSize;
+
                 switch (grid[x, y])
                 {
                     case 1f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Trees[1]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Trees[1]);
                         break;
                     case 2.0f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Trees[9]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Trees[9]);
                         break;
                     case 2.1f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Trees[7]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Trees[7]);
                         break;
                     case 2.2f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Trees[10]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Trees[10]);
                         break;
                     case 2.3f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Trees[8]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Trees[8]);
                         break;
                     case 3.0f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Trees[2]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Trees[2]);
                         break;
                     case 3.1f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Trees[2]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Trees[2]);
                         break;
                     case 3.2f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Trees[2]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Trees[2]);
                         break;
                     case 3.3f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Trees[2]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Trees[2]);
                         break;
                     case 4.1f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Stones[0]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Stones[0]);
                         break;
                     case 4.2f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Stones[1]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Stones[1]);
                         break;
                     case 5.1f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Bushes[0]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Bushes[0]);
                         break;
                     case 5.2f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Bushes[1]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Bushes[1]);
                         break;
                     case 5.3f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Bushes[2]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Bushes[2]);
                         break;
                     case 5.4f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Bushes[3]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Bushes[3]);
                         break;
                     case 5.5f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Bushes[4]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Bushes[4]);
                         break;
                     case 5.6f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Bushes[5]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Bushes[5]);
                         break;
                     case 6.1f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Flowers[0]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Flowers[0]);
                         break;
                     case 6.2f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Flowers[1]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Flowers[1]);
                         break;
                     case 6.3f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Flowers[2]);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Flowers[2]);
                         break;
                     case 9f:
-                        Flora_Layer.SetTile(new Vector3Int(x, y, 1), Snowman);
+                        Flora_Layer.SetTile(new Vector3Int(xCoordinate, yCoordinate, 1), Snowman);
                         break;
                 }
             }
@@ -188,5 +222,7 @@ public class RenderWorld : MonoBehaviour
         Terrain_Layer_3.ClearAllTiles();
         Terrain_Layer_4.ClearAllTiles();
         Flora_Layer.ClearAllTiles();
+
+        chunkLoader.chunkIteration = 0;
     }
 }
